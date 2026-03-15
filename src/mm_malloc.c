@@ -35,7 +35,6 @@ struct block_meta *request_space(struct block_meta *last, size_t size) {
     if (request == (void*) -1) {
         return NULL;
     }
-
     if (last) {
         last->next = block;
     }
@@ -107,7 +106,6 @@ void my_free(void *ptr) {
         block->size += META_SIZE + next_block->size;
         block->next = next_block->next;
     }
-    
     if (prev_block && prev_block->free) {
         prev_block->size += META_SIZE + block->size;
         prev_block->next = block->next;
@@ -116,6 +114,9 @@ void my_free(void *ptr) {
 
 void *my_calloc(size_t nmemb, size_t size) {
     // TODO: Usar my_malloc y luego memset a 0.
+    if (size == 0) {
+        return NULL;
+    }
     size_t total_size = nmemb * size;
     void *ptr = my_malloc(total_size);
 
@@ -127,8 +128,21 @@ void *my_calloc(size_t nmemb, size_t size) {
 
 void *my_realloc(void *ptr, size_t size) {
     // TODO: Redimensionar el bloque o moverlo a uno nuevo.
+    if (!ptr) {
+        return my_malloc(size);
+    }
+    struct block_meta *block = get_block(ptr);
 
-    (void)ptr;
-    (void)size;
-    return NULL;
+    if (size <= block->size) {
+        return ptr;
+    } else {
+        void *new_ptr = my_malloc(size);
+
+        if (!new_ptr) {
+            return NULL;
+        }
+        memcpy(new_ptr, ptr, block->size);
+        my_free(ptr);
+        return new_ptr;
+    }
 }
