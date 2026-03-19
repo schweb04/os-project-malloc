@@ -57,6 +57,7 @@ void *my_malloc(size_t size) {
     // TODO: Implementar First-Fit o Best-Fit
     // 1. Verificar si hay un bloque libre del tamaño adecuado.
     // 2. Si no, pedir espacio al OS con sbrk().
+    if (size == 0) return NULL;
     struct block_meta* block;
     
     if (!base) {// Si es la primera vez que se llama a my_malloc (base nula), no hay bloques en la lista, por lo que se pide espacio
@@ -109,9 +110,7 @@ void my_free(void *ptr) {
 
 void *my_calloc(size_t nmemb, size_t size) {
     // TODO: Usar my_malloc y luego memset a 0.
-    if (size == 0) {
-        return NULL;
-    }
+    if (nmemb == 0 || size == 0) return NULL;
     size_t total_size = nmemb * size;
     void *ptr = my_malloc(total_size);
 
